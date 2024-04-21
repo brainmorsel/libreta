@@ -1,8 +1,12 @@
 module github.com/brainmorsel/libreta
 
-go 1.21.5
+go 1.22
 
-require github.com/stretchr/testify v1.8.4
+require (
+	github.com/jmoiron/sqlx v1.3.5
+	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/stretchr/testify v1.8.4
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
