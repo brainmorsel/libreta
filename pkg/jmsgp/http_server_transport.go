@@ -69,6 +69,10 @@ type httpPeer struct {
 var _ Peer = (*httpPeer)(nil)
 
 func (p *httpPeer) Send(ctx context.Context, target, id string, data any) error {
+	return WriteHTTPResponse(ctx, p.w, target, id, data)
+}
+
+func WriteHTTPResponse(ctx context.Context, w http.ResponseWriter, target, id string, data any) error {
 	msg := Message{
 		Id:     id,
 		Target: target,
@@ -99,9 +103,9 @@ func (p *httpPeer) Send(ctx context.Context, target, id string, data any) error 
 		marshalErr = fmt.Errorf("jmsgp send msg marshal: %w", marshalErr)
 
 	}
-	p.w.Header().Set("Content-Type", "application/json")
-	p.w.WriteHeader(httpStatus)
-	_, writeErr := p.w.Write(body)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatus)
+	_, writeErr := w.Write(body)
 	if writeErr != nil {
 		writeErr = fmt.Errorf("jmsgp send msg write: %w", writeErr)
 	}

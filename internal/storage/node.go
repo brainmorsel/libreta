@@ -23,7 +23,7 @@ type Node struct {
 	Name            string
 	ContentHash     string
 	ContentMimetype string
-	ContentLength   int
+	ContentLength   int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       time.Time
@@ -40,7 +40,7 @@ type nodeRow struct {
 	Name            string    `db:"name"`
 	ContentHash     string    `db:"content_hash"`
 	ContentMimetype string    `db:"content_mimetype"`
-	ContentLength   int       `db:"content_length"`
+	ContentLength   int64     `db:"content_length"`
 	CreatedAt       Timestamp `db:"created_at"`
 	UpdatedAt       Timestamp `db:"updated_at"`
 	DeletedAt       Timestamp `db:"deleted_at"`

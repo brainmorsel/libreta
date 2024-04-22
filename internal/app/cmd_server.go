@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/brainmorsel/libreta/internal/api"
 	"github.com/brainmorsel/libreta/internal/core"
 	"github.com/brainmorsel/libreta/internal/storage"
 )
@@ -14,12 +15,14 @@ import (
 func NewServer(
 	logger *slog.Logger,
 	config *Config,
+	apiNodeContent *api.NodeContent,
 ) http.Handler {
 	mux := http.NewServeMux()
 	addRoutes(
 		mux,
 		logger,
 		config,
+		apiNodeContent,
 	)
 	var handler http.Handler = mux
 	return handler
@@ -36,7 +39,12 @@ func cmdServer(ctx context.Context, logger *slog.Logger, config *Config) error {
 	core := core.NewCore(logger, storage)
 	_ = core
 
-	srv := NewServer(logger, config)
+	apiNodeContent, err := api.NewNodeContent(logger, storage)
+	if err != nil {
+		return fmt.Errorf("new api.NodeContent: %w", err)
+	}
+
+	srv := NewServer(logger, config, apiNodeContent)
 	httpServer := &http.Server{
 		Addr:    config.BindAddr,
 		Handler: srv,
