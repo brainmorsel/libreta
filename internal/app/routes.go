@@ -27,6 +27,7 @@ func addRoutes(
 	apiNodeContent *api.NodeContent,
 ) {
 	mux.Handle("POST /api/content", logErrorHandler{logger, apiNodeContent.Upload})
+	mux.Handle("GET /api/content/{node_id}", logErrorHandler{logger, apiNodeContent.Download})
 	if config.DevServerURL.String() != "" {
 		logger.Info("proxy to dev server used", slog.String("url", config.DevServerURL.String()))
 		mux.Handle("/", httputil.NewSingleHostReverseProxy(&config.DevServerURL))

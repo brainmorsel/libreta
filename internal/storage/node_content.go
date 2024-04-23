@@ -20,7 +20,15 @@ type nodeContentRow struct {
 	CreatedAt Timestamp `db:"created_at"`
 }
 
-func (s *Storage) NodeContentLoad(ctx context.Context, hash string) (r io.Reader, err error) {
+type blobReader struct {
+	*bytes.Reader
+}
+
+func (br blobReader) Close() error {
+	return nil
+}
+
+func (s *Storage) NodeContentLoad(ctx context.Context, hash string) (r io.ReadCloser, err error) {
 	// TODO: replace with Blob I/O, when https://github.com/mattn/go-sqlite3/issues/239 resolved.
 	var row nodeContentRow
 	err = s.readDB.GetContext(ctx, &row, `SELECT hash, content, created_at FROM node_content WHERE hash = $1`, hash)
@@ -30,7 +38,7 @@ func (s *Storage) NodeContentLoad(ctx context.Context, hash string) (r io.Reader
 	case err != nil:
 		return nil, fmt.Errorf("select: %w", err)
 	}
-	return bytes.NewReader(row.Content), nil
+	return blobReader{bytes.NewReader(row.Content)}, nil
 }
 
 func (s *Storage) NodeContentSave(ctx context.Context, r io.Reader) (string, error) {
