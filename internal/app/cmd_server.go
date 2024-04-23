@@ -12,22 +12,6 @@ import (
 	"github.com/brainmorsel/libreta/internal/storage"
 )
 
-func NewServer(
-	logger *slog.Logger,
-	config *Config,
-	apiNodeContent *api.NodeContent,
-) http.Handler {
-	mux := http.NewServeMux()
-	addRoutes(
-		mux,
-		logger,
-		config,
-		apiNodeContent,
-	)
-	var handler http.Handler = mux
-	return handler
-}
-
 func cmdServer(ctx context.Context, logger *slog.Logger, config *Config) error {
 	storage, err := storage.NewStorage(logger, config.DataDir)
 	if err != nil {
@@ -43,8 +27,19 @@ func cmdServer(ctx context.Context, logger *slog.Logger, config *Config) error {
 	if err != nil {
 		return fmt.Errorf("new api.NodeContent: %w", err)
 	}
+	apiRPC, err := api.NewRPC(logger, storage)
+	if err != nil {
+		return fmt.Errorf("new api.RPC: %w", err)
+	}
 
-	srv := NewServer(logger, config, apiNodeContent)
+	srv := http.NewServeMux()
+	addRoutes(
+		srv,
+		logger,
+		config,
+		apiNodeContent,
+		apiRPC,
+	)
 	httpServer := &http.Server{
 		Addr:    config.BindAddr,
 		Handler: srv,

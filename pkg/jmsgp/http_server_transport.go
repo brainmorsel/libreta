@@ -19,6 +19,12 @@ func TargetFromHTTPRequestURLPath(r *http.Request) string {
 	return path.Base(r.URL.Path) // XXX
 }
 
+func TargetFromHTTPRequestURLPathValue(name string) func(*http.Request) string {
+	return func (r *http.Request) string {
+		return r.PathValue(name)
+	}
+}
+
 type HTTPServerTransport struct {
 	BodyMaxBytes      int64
 	MessageIdHeader   string
